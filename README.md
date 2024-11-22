@@ -71,6 +71,11 @@ streamlit run app.py
 
 ---
 
+## ✍️ Author  
+Ronak Bansal
+
+---
+
 ## 🙌 Contributing  
 Feel free to fork this repository, make improvements, and submit a pull request.  
 
