@@ -2,7 +2,7 @@
 # 🛢️ Gemini SQL Query App  
 A powerful Streamlit application that leverages Google Gemini AI to convert natural language questions into SQL queries and execute them on an SQLite database.  
 
-## Features  
+## ⚙️Features  
 - **Natural Language to SQL Conversion**: Ask questions in plain English, and the app generates SQL queries using Gemini AI.  
 - **Database Integration**: Execute the generated SQL queries on an SQLite database (`student.db`) and retrieve the results.  
 - **Dynamic Table Management**: Add, view, and manipulate student records in the `STUDENT` table.  
