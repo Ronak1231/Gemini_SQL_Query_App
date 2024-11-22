@@ -1,5 +1,5 @@
 
-# 🌟 Gemini SQL Query App  
+# 🛢️ Gemini SQL Query App  
 A powerful Streamlit application that leverages Google Gemini AI to convert natural language questions into SQL queries and execute them on an SQLite database.  
 
 ## Features  
