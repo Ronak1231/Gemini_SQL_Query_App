@@ -49,17 +49,16 @@ Create a `.env` file in the project directory and add your Google Gemini API key
 ```
 GOOGLE_GEMINI_KEY=your_api_key_here  
 ```  
-
-### 6. Run the Application  
-```bash  
-streamlit run app.py  
-```  
-
-### 7. Interact with the Database  
+### 6. Interact with the Database  
 Use the second script to create and insert records into the `STUDENT` table:  
 ```bash  
-python manage_database.py  
-```  
+python sql.py  
+```
+
+### 7. Run the Application  
+```bash  
+streamlit run app.py  
+```
 
 ---
 
@@ -69,11 +68,6 @@ python manage_database.py
 
 2. **Tell me all the students studying in the Data Science class.**  
    - Generated SQL: `SELECT * FROM STUDENT WHERE CLASS='Data Science';`  
-
----
-
-## 🛡️ License  
-This project is licensed under the MIT License.  
 
 ---
 
@@ -88,4 +82,4 @@ If you encounter issues, please create an issue in this repository.
 ---
 
 ## 📧 Contact  
-For inquiries or support, contact [your email].  
+For inquiries or support, contact [ronakbansal12345@gmail.com].  
