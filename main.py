@@ -46,7 +46,7 @@ def login_user(username, password):
     conn.close()
     return result
 
-# -------------------- Gemini --------------------
+# -------------------- Gemini Functions --------------------
 def get_db_schema():
     conn = sqlite3.connect("general.db")
     c = conn.cursor()
@@ -90,7 +90,7 @@ def run_sql_query(sql):
 
 # -------------------- Streamlit App --------------------
 st.set_page_config(page_title="Dynamic SQL App", layout="centered")
-st.title("\U0001F4C8 Create & Query Any SQL Table")
+st.title("📊 Create & Query Any SQL Table")
 
 menu = ["Login", "Register"]
 choice = st.sidebar.selectbox("Menu", menu)
@@ -101,7 +101,7 @@ if "username" not in st.session_state:
     st.session_state.username = ""
 
 # -------------------- Register --------------------
-if choice == "Register":
+if choice == "Register" and not st.session_state.logged_in:
     st.subheader("Create Account")
     name = st.text_input("Full Name")
     username = st.text_input("Username")
@@ -110,21 +110,19 @@ if choice == "Register":
         if name and username and password:
             try:
                 register_user(name, username, password)
-                st.success("Registered. Please login.")
-                st.session_state.logged_in = True
-                st.session_state.username = username
-                st.experimental_rerun()
+                st.success("Registered successfully. Please login.")
             except sqlite3.IntegrityError:
                 st.error("Username already exists.")
         else:
             st.error("All fields are required.")
 
 # -------------------- Login --------------------
-elif choice == "Login":
+elif choice == "Login" and not st.session_state.logged_in:
     st.subheader("Login")
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
-    if st.button("Login"):
+    login_btn = st.button("Login")
+    if login_btn:
         if login_user(username, password):
             st.session_state.logged_in = True
             st.session_state.username = username
@@ -133,13 +131,13 @@ elif choice == "Login":
         else:
             st.error("Invalid credentials.")
 
-# -------------------- Logged In Functionality --------------------
+# -------------------- Main App --------------------
 if st.session_state.logged_in:
-    tab1, tab2, tab3, tab4 = st.tabs(["\U0001F9F1 Create Table", "\U0001F4E5 Insert Data", "\U0001F916 Query with Gemini", "❌ Delete Data"])
+    tab1, tab2, tab3, tab4 = st.tabs(["🧱 Create Table", "📥 Insert Data", "🤖 Query with Gemini", "❌ Delete"])
 
-    # Tab 1: Create Table
+    # -------------------- Tab 1: Create Table --------------------
     with tab1:
-        st.subheader("\U0001F9F1 Create Table (No SQL Needed)")
+        st.subheader("🧱 Create Table (No SQL Needed)")
         table_name = st.text_input("Enter table name:")
 
         if "columns" not in st.session_state:
@@ -159,7 +157,7 @@ if st.session_state.logged_in:
                 st.success(f"Added column: {new_col_name} ({new_col_type})")
 
         if st.session_state.columns:
-            st.markdown("### \U0001F9F1 Column Preview")
+            st.markdown("### 🧱 Column Preview")
             for col in st.session_state.columns:
                 st.markdown(f"- `{col[0]}` ({col[1]}){' [PK]' if col[2] else ''}")
 
@@ -181,9 +179,9 @@ if st.session_state.logged_in:
             except Exception as e:
                 st.error(f"Error: {e}")
 
-    # Tab 2: Insert Data
+    # -------------------- Tab 2: Insert Data --------------------
     with tab2:
-        st.subheader("\U0001F4E5 Insert Data into Table")
+        st.subheader("📥 Insert Data into Table")
         conn = sqlite3.connect("general.db")
         c = conn.cursor()
         tables = c.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
@@ -213,9 +211,9 @@ if st.session_state.logged_in:
                     st.error(f"Insertion error: {e}")
             conn.close()
 
-    # Tab 3: Gemini Query
+    # -------------------- Tab 3: Gemini Query --------------------
     with tab3:
-        st.subheader("\U0001F916 Ask in English and Get SQL Results")
+        st.subheader("🤖 Ask in English and Get SQL Results")
         question = st.text_input("e.g., Show all employees with salary > 50000")
         if st.button("Run Query"):
             try:
@@ -233,7 +231,7 @@ if st.session_state.logged_in:
             except Exception as e:
                 st.error(f"Query error: {e}")
 
-    # Tab 4: Delete Data
+    # -------------------- Tab 4: Delete Table or Row --------------------
     with tab4:
         st.subheader("❌ Delete Table or Row")
         conn = sqlite3.connect("general.db")
@@ -242,34 +240,34 @@ if st.session_state.logged_in:
         table_names = [t[0] for t in tables]
         conn.close()
 
-        selected_table = st.selectbox("Select table to delete from", table_names)
-        delete_mode = st.radio("Delete Mode", ["Delete Whole Table", "Delete Specific Row"])
+        selected_table = st.selectbox("Select Table to Delete", table_names)
 
-        if delete_mode == "Delete Whole Table" and st.button("Delete Table"):
+        if st.button("❌ Delete Entire Table"):
             try:
                 conn = sqlite3.connect("general.db")
-                conn.execute(f"DROP TABLE IF EXISTS {selected_table}")
+                c = conn.cursor()
+                c.execute(f"DROP TABLE IF EXISTS {selected_table}")
                 conn.commit()
                 conn.close()
-                st.success("Table deleted successfully.")
+                st.success(f"Table `{selected_table}` deleted.")
             except Exception as e:
-                st.error(f"Error deleting table: {e}")
+                st.error(f"Error: {e}")
 
-        elif delete_mode == "Delete Specific Row":
-            st.markdown("Provide condition for deletion, e.g., `id=1`")
-            where_clause = st.text_input("WHERE clause")
-            if st.button("Delete Row"):
-                try:
-                    conn = sqlite3.connect("general.db")
-                    conn.execute(f"DELETE FROM {selected_table} WHERE {where_clause}")
-                    conn.commit()
-                    conn.close()
-                    st.success("Row deleted successfully.")
-                except Exception as e:
-                    st.error(f"Error deleting row: {e}")
+        st.markdown("---")
+        st.subheader("Delete Rows by Condition")
+        where_clause = st.text_input("Enter WHERE clause (e.g., age > 30)")
+        if st.button("🗑️ Delete Row(s)"):
+            try:
+                conn = sqlite3.connect("general.db")
+                c = conn.cursor()
+                c.execute(f"DELETE FROM {selected_table} WHERE {where_clause}")
+                conn.commit()
+                conn.close()
+                st.success("Row(s) deleted successfully.")
+            except Exception as e:
+                st.error(f"Error: {e}")
 
     if st.button("Logout"):
         st.session_state.logged_in = False
         st.session_state.username = ""
-        st.success("Logged out.")
         st.experimental_rerun()
