@@ -99,6 +99,8 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
     st.session_state.username = ""
+if "rerun" not in st.session_state:
+    st.session_state.rerun = False
 
 # -------------------- Register --------------------
 if choice == "Register":
@@ -113,7 +115,7 @@ if choice == "Register":
                 st.success("Registered. Please login.")
                 st.session_state.logged_in = True
                 st.session_state.username = username
-                st.experimental_rerun()
+                st.session_state.rerun = True
             except sqlite3.IntegrityError:
                 st.error("Username already exists.")
         else:
@@ -128,8 +130,7 @@ elif choice == "Login":
         if login_user(username, password):
             st.session_state.logged_in = True
             st.session_state.username = username
-            st.success(f"Welcome, {username}!")
-            st.experimental_rerun()
+            st.session_state.rerun = True
         else:
             st.error("Invalid credentials.")
 
@@ -271,5 +272,9 @@ if st.session_state.logged_in:
     if st.button("Logout"):
         st.session_state.logged_in = False
         st.session_state.username = ""
-        st.success("Logged out.")
-        st.experimental_rerun()
+        st.session_state.rerun = True
+
+# -------------------- Safe Rerun --------------------
+if st.session_state.get("rerun", False):
+    st.session_state.rerun = False
+    st.experimental_rerun()
