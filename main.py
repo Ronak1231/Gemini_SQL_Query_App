@@ -111,9 +111,7 @@ if choice == "Register":
             try:
                 register_user(name, username, password)
                 st.success("Registered successfully. Please login.")
-                # Do NOT set logged_in True here, force login instead.
-                st.experimental_rerun()
-                st.stop()
+                st.rerun()
             except sqlite3.IntegrityError:
                 st.error("Username already exists.")
         else:
@@ -129,8 +127,7 @@ elif choice == "Login":
             st.session_state.logged_in = True
             st.session_state.username = username
             st.success(f"Welcome, {username}!")
-            st.experimental_rerun()
-            st.stop()
+            st.rerun()
         else:
             st.error("Invalid credentials.")
 
@@ -184,8 +181,7 @@ if st.session_state.logged_in:
                     conn.close()
                     st.success("✅ Table created successfully.")
                     st.session_state.columns = []
-                    st.experimental_rerun()
-                    st.stop()
+                    st.rerun()
             except Exception as e:
                 st.error(f"Error: {e}")
 
@@ -217,8 +213,7 @@ if st.session_state.logged_in:
                     c.execute(f"INSERT INTO {selected_table} ({col_names}) VALUES ({placeholders})", values)
                     conn.commit()
                     st.success("Record inserted successfully.")
-                    st.experimental_rerun()
-                    st.stop()
+                    st.rerun()
                 except Exception as e:
                     st.error(f"Insertion error: {e}")
             conn.close()
@@ -262,8 +257,7 @@ if st.session_state.logged_in:
                 conn.commit()
                 conn.close()
                 st.success("Table deleted successfully.")
-                st.experimental_rerun()
-                st.stop()
+                st.rerun()
             except Exception as e:
                 st.error(f"Error deleting table: {e}")
 
@@ -277,8 +271,7 @@ if st.session_state.logged_in:
                     conn.commit()
                     conn.close()
                     st.success("Row deleted successfully.")
-                    st.experimental_rerun()
-                    st.stop()
+                    st.rerun()
                 except Exception as e:
                     st.error(f"Error deleting row: {e}")
 
@@ -286,5 +279,4 @@ if st.session_state.logged_in:
         st.session_state.logged_in = False
         st.session_state.username = ""
         st.success("Logged out.")
-        st.experimental_rerun()
-        st.stop()
+        st.rerun()
