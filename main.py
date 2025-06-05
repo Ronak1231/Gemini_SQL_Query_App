@@ -114,6 +114,7 @@ if choice == "Register":
                 st.session_state.logged_in = True
                 st.session_state.username = username
                 st.experimental_rerun()
+                st.stop()  # Prevent further execution after rerun
             except sqlite3.IntegrityError:
                 st.error("Username already exists.")
         else:
@@ -130,6 +131,7 @@ elif choice == "Login":
             st.session_state.username = username
             st.success(f"Welcome, {username}!")
             st.experimental_rerun()
+            st.stop()  # Prevent further execution after rerun
         else:
             st.error("Invalid credentials.")
 
@@ -271,4 +273,6 @@ if st.session_state.logged_in:
     if st.button("Logout"):
         st.session_state.logged_in = False
         st.session_state.username = ""
+        st.success("Logged out.")
         st.experimental_rerun()
+        st.stop()  # Prevent further execution after rerun
