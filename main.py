@@ -110,11 +110,10 @@ if choice == "Register":
         if name and username and password:
             try:
                 register_user(name, username, password)
-                st.success("Registered. Please login.")
-                st.session_state.logged_in = True
-                st.session_state.username = username
+                st.success("Registered successfully. Please login.")
+                # Do NOT set logged_in True here, force login instead.
                 st.experimental_rerun()
-                st.stop()  # Prevent further execution after rerun
+                st.stop()
             except sqlite3.IntegrityError:
                 st.error("Username already exists.")
         else:
@@ -131,7 +130,7 @@ elif choice == "Login":
             st.session_state.username = username
             st.success(f"Welcome, {username}!")
             st.experimental_rerun()
-            st.stop()  # Prevent further execution after rerun
+            st.stop()
         else:
             st.error("Invalid credentials.")
 
@@ -167,19 +166,26 @@ if st.session_state.logged_in:
 
         if st.button("Create Table"):
             try:
-                columns_sql = []
-                for name, dtype, pk in st.session_state.columns:
-                    col_def = f"{name} {dtype}"
-                    if pk:
-                        col_def += " PRIMARY KEY"
-                    columns_sql.append(col_def)
-                full_sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({', '.join(columns_sql)});"
-                conn = sqlite3.connect("general.db")
-                conn.execute(full_sql)
-                conn.commit()
-                conn.close()
-                st.success("✅ Table created successfully.")
-                st.session_state.columns = []
+                if not table_name:
+                    st.error("Table name is required.")
+                elif not st.session_state.columns:
+                    st.error("Add at least one column.")
+                else:
+                    columns_sql = []
+                    for name, dtype, pk in st.session_state.columns:
+                        col_def = f"{name} {dtype}"
+                        if pk:
+                            col_def += " PRIMARY KEY"
+                        columns_sql.append(col_def)
+                    full_sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({', '.join(columns_sql)});"
+                    conn = sqlite3.connect("general.db")
+                    conn.execute(full_sql)
+                    conn.commit()
+                    conn.close()
+                    st.success("✅ Table created successfully.")
+                    st.session_state.columns = []
+                    st.experimental_rerun()
+                    st.stop()
             except Exception as e:
                 st.error(f"Error: {e}")
 
@@ -211,6 +217,8 @@ if st.session_state.logged_in:
                     c.execute(f"INSERT INTO {selected_table} ({col_names}) VALUES ({placeholders})", values)
                     conn.commit()
                     st.success("Record inserted successfully.")
+                    st.experimental_rerun()
+                    st.stop()
                 except Exception as e:
                     st.error(f"Insertion error: {e}")
             conn.close()
@@ -254,6 +262,8 @@ if st.session_state.logged_in:
                 conn.commit()
                 conn.close()
                 st.success("Table deleted successfully.")
+                st.experimental_rerun()
+                st.stop()
             except Exception as e:
                 st.error(f"Error deleting table: {e}")
 
@@ -267,6 +277,8 @@ if st.session_state.logged_in:
                     conn.commit()
                     conn.close()
                     st.success("Row deleted successfully.")
+                    st.experimental_rerun()
+                    st.stop()
                 except Exception as e:
                     st.error(f"Error deleting row: {e}")
 
@@ -275,4 +287,4 @@ if st.session_state.logged_in:
         st.session_state.username = ""
         st.success("Logged out.")
         st.experimental_rerun()
-        st.stop()  # Prevent further execution after rerun
+        st.stop()
